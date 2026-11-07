@@ -76,7 +76,8 @@ export default defineConfig({
 					: entrypoint,
 			compatibilityDate: "2026-07-11",
 			compatibilityFlags: ["global_fetch_strictly_public"],
-			workersDev: environment === "development",
+			// Self-hosted forks without a custom domain serve on workers.dev.
+			workersDev: environment === "development" || !route,
 			previewUrls: true,
 			observability,
 			domains: route ? [route] : undefined,

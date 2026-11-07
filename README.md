@@ -17,6 +17,25 @@
 
 </div>
 
+## This fork
+
+This is a self-hosted fork of [chrisdoc/hevy-mcp](https://github.com/chrisdoc/hevy-mcp). It
+deploys the Cloudflare Worker to the fork owner's own account instead of the author's hosted
+endpoint, so the OAuth grant that holds the Hevy API key lives in a KV namespace the owner
+controls. Upstream's release, publishing and bot workflows were removed; the only workflow left
+is a CI check. Pushes to `main` redeploy through Cloudflare Workers Builds with these settings:
+
+| Setting | Value |
+| --- | --- |
+| Root directory | `/` (pnpm workspace) |
+| Build command | *(none; `pnpm install` runs automatically)* |
+| Deploy command | `pnpm --dir packages/worker exec cf deploy --mode production` |
+| Build variables | `CLOUDFLARE_OAUTH_KV_NAMESPACE_ID`, `CLOUDFLARE_OAUTH_RESOURCE` (`https://<worker>.workers.dev/mcp`) |
+
+Without a `CLOUDFLARE_WORKER_ROUTE` the fork serves on `workers.dev` in production mode (a
+one-line change in `packages/worker/cloudflare.config.ts`). To pull in upstream changes:
+`git remote add upstream https://github.com/chrisdoc/hevy-mcp && git fetch upstream && git merge upstream/main`.
+
 ## Hevy CLI
 
 Prefer the terminal? The separate

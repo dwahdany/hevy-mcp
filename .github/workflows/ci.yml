@@ -1,0 +1,38 @@
+name: CI
+
+# Fork CI: type-check, run the Worker test suites, and make sure the
+# production Worker still builds. Deploys happen through Cloudflare Workers
+# Builds on pushes to main, not from here.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  worker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 12.0.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24.x"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @hevy-mcp/worker run check:types
+      - run: pnpm exec vitest run packages/worker
+      - run: pnpm exec vitest run --config vitest.workers.config.ts
+      - name: Build the production Worker (no upload)
+        working-directory: packages/worker
+        env:
+          CLOUDFLARE_OAUTH_KV_NAMESPACE_ID: "00000000000000000000000000000000"
+          CLOUDFLARE_OAUTH_RESOURCE: https://example.invalid/mcp
+        run: pnpm exec cf deploy --mode production --dry-run
