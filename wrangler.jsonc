@@ -1,0 +1,18 @@
+// Fork-only Wrangler configuration so Cloudflare Workers Builds can deploy this
+// repository with its default settings (root directory "/", deploy command
+// "npx wrangler deploy"). Upstream deploys with the `cf` CLI through
+// packages/worker/cloudflare.config.ts; both describe the same Worker, so keep
+// the bindings, compatibility date and flags in sync when merging upstream.
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "hevy-mcp",
+	"main": "packages/worker/src/worker.ts",
+	"compatibility_date": "2026-07-11",
+	"compatibility_flags": ["global_fetch_strictly_public"],
+	"workers_dev": true,
+	"minify": true,
+	"preview_urls": true,
+	"observability": { "enabled": true },
+	"kv_namespaces": [{ "binding": "OAUTH_KV", "id": "e8120a78d6174d4190902ee54c9ef6aa" }],
+	"vars": { "OAUTH_RESOURCE": "https://hevy-mcp.dariush-5fc.workers.dev/mcp" }
+}
